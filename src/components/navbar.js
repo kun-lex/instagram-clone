@@ -1,3 +1,5 @@
+import 'App.css'
+
 const NavBar = () => {
     return (
         <div className='app__header'>
@@ -9,3 +11,4 @@ const NavBar = () => {
         </div>
     )
 }
+export default NavBar;
