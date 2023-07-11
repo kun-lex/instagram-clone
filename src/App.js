@@ -2,13 +2,12 @@ import { useState, useEffect  } from 'react';
 import './App.css';
 import Post from './components/post';
 import NavBar from './components/navbar';
-import PostImage from '.\image\WhatsApp Image 2023-06-25 at 12.01.52.jpeg';
-import { db } from './firebase';
+import { db , auth } from './firebase';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import { Input } from '@material-ui/core';
+import { onSnapshot, collection } from 'firebase/firestore'
 
 function App() {
   const [ posts, setPosts ] = useState([]);
@@ -28,18 +27,28 @@ function App() {
     p: 4,
   };
 
+  // useEffect(() =>{
+  //   auth.onAuthStateChanged((authUser) => {
+  //     if (authUser) {
+
+  //     } else {
+
+  //     }
+  //   })
+  // }, []);
+
   // it runs a piece of code based on a specific condition [useEffect]
   useEffect(()=> {
-    db.collection('posts').onSnapshot(snapshot => {
-      setPosts(snapshot.docs.map(doc =>({ 
-        id: doc.id,
-        post: doc.data()
-        })));
-    })
+    onSnapshot(collection(db, "posts"), (snapshot) =>{
+      setPosts(snapshot.docs.map((doc) => doc.data() ))
+    } )
   }, [])
 
   const signUp = (event) => {
-
+    event.preventDefault();
+    auth
+    .createUserWihtEmailAndPassword(email, password)
+    .catch((error) => alert(error.message ))
   }
 
   return (
@@ -50,7 +59,12 @@ function App() {
         onClose={() => setOpen(false)}
       >
         <Box sx={style}>
-          <form>
+          <form
+            style={{
+              display:'flex',
+              flexDirection: 'column',
+            }}
+          >
             <center>
               <img
                 className='app__headerImage'
@@ -79,10 +93,10 @@ function App() {
           </form>
         </Box>
       </Modal>
-      <Button onClick={signUp} > Sign Up </Button>
+      <Button type='submit' onClick={signUp} > Sign Up </Button>
       {
-        posts.map(({id, post}) => (
-          <Post key={id} username={post.username} caption={post.caption} imageUrl={post.imageUrl}/>
+        posts.map(({post}) => (
+          <Post  username={post.username} caption={post.caption} imageUrl={post.imageUrl}/>
         ))
       }
     </div>

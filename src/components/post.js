@@ -1,5 +1,4 @@
 import './post.css';
-import PostImage from '.\image\WhatsApp Image 2023-06-25 at 12.01.52.jpeg';
 import Avatar from "@material-ui/core/Avatar"
 
 const Post = ( { username, caption, imageUrl } ) => {
@@ -9,12 +8,12 @@ const Post = ( { username, caption, imageUrl } ) => {
                 <Avatar
                     className='post__avatar'
                     alt='Davidakinola'
-                    src="/static/images/avatar/1.jpg"
+                    src="./static/images/avatar/1.jpg"
                 />
                 <h3>{username}</h3>
             </div>
             
-            <img className="post__image" src={ imageUrl } />
+            <img className="post__image" src={ imageUrl } alt='user-pic' />
             <h4 className="post__text" ><strong>{username}</strong>: {caption}</h4>
         </div>
     )
