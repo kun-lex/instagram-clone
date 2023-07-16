@@ -38,11 +38,11 @@ function App() {
   // }, []);
 
   // it runs a piece of code based on a specific condition [useEffect]
-  useEffect(()=> {
-    onSnapshot(collection(db, "posts"), (snapshot) =>{
-      setPosts(snapshot.docs.map((doc) => doc.data() ))
-    } )
-  }, [])
+  useEffect(()=> 
+    onSnapshot(collection(db, "posts"), (snapshot) =>
+      setPosts(snapshot.docs.map((doc) =>({ ...doc.data(), id: doc.id}) ))
+    )
+  , [])
 
   const signUp = (event) => {
     event.preventDefault();
@@ -95,7 +95,7 @@ function App() {
       </Modal>
       <Button type='submit' onClick={signUp} > Sign Up </Button>
       {
-        posts.map(({post}) => (
+        posts.map((post) => (
           <Post  username={post.username} caption={post.caption} imageUrl={post.imageUrl}/>
         ))
       }
