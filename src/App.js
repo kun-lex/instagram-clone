@@ -8,7 +8,8 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Input } from '@material-ui/core';
 import { onSnapshot, collection } from 'firebase/firestore'
-import { createUserWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signOut, updateProfile, signInWithEmailAndPassword } from 'firebase/auth';
+import ImageUpload from './components/ImageUpload';
 
 function App() {
   const [ posts, setPosts ] = useState([]);
@@ -19,6 +20,7 @@ function App() {
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
   const [user, setUser] = useState(null);
+  const [openSignIn, setOpenSignIn] =useState(false)
 
   const style = {
     position: 'absolute',
@@ -67,11 +69,22 @@ function App() {
         displayName: username
       })
     }).catch((error) => alert(error.message ))
+
+    setOpen(false)
+  }
+
+  const signIn = (e) => {
+    e.preventDefault();
+    signInWithEmailAndPassword(auth, email, password)
+    .catch((error) => alert(error.message ))
+
+    setOpenSignIn(false);
   }
 
   return (
     <div className="app">
       <NavBar/>
+      <ImageUpload username={user.displayName} />
       <Modal
         open={open}
         onClose={handleClose}
@@ -112,10 +125,47 @@ function App() {
           </form>
         </Box>
       </Modal>
+      <Modal
+        open={openSignIn}
+        onClose={setOpenSignIn}
+      >
+        <Box sx={style}>
+          <form
+            style={{
+              display:'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <center>
+              <img
+                className='app__headerImage'
+                src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
+                alt="instagram logo"
+              />
+            </center>
+              <Input
+                placeholder={'Email'}
+                type={"text"}
+                vaule={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input
+                placeholder={'Password'}
+                type={"password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Button type='submit' onClick={signIn} > Sign In </Button>
+          </form>
+        </Box>
+      </Modal>
       {user ? (
         <Button onClick={ () => signOut(auth)} >Log out</Button>
       ): (
-        <Button onClick={handleOpen} >Sign Up</Button>
+        <div className='app__loginContainer' >
+          <Button onClick={setOpenSignIn} >Sign in</Button>
+          <Button onClick={handleOpen} >Sign Up</Button>
+        </div>
       )}
       
       {
