@@ -8,13 +8,18 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Input } from '@material-ui/core';
 import { onSnapshot, collection } from 'firebase/firestore'
+import { createUserWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
 
 function App() {
   const [ posts, setPosts ] = useState([]);
   const [ open, setOpen ] = useState(false);
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
   const [ username, setUsername ] = useState('');
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
+  const [user, setUser] = useState(null);
+
   const style = {
     position: 'absolute',
     top: '50%',
@@ -26,16 +31,26 @@ function App() {
     boxShadow: 24,
     p: 4,
   };
+  useEffect(() =>{
+    const unsubscribe =  auth.onAuthStateChanged((authUser) => {
+      if (authUser) {
+        console.log(authUser);
+        setUser(authUser);
+        if (authUser.displayName) {
 
-  // useEffect(() =>{
-  //   auth.onAuthStateChanged((authUser) => {
-  //     if (authUser) {
-
-  //     } else {
-
-  //     }
-  //   })
-  // }, []);
+        }else {
+          return updateProfile(authUser, {
+            displayName: username,
+          });
+        }
+      } else {
+        setUser(null);
+      }
+    })
+    return ()=> {
+      unsubscribe();
+    }
+  }, [user, username]);
 
   // it runs a piece of code based on a specific condition [useEffect]
   useEffect(()=> 
@@ -44,11 +59,14 @@ function App() {
     )
   , [])
 
-  const signUp = (event) => {
-    event.preventDefault();
-    auth
-    .createUserWihtEmailAndPassword(email, password)
-    .catch((error) => alert(error.message ))
+  const signUp = (e) => {
+    e.preventDefault();
+    createUserWithEmailAndPassword(auth, email, password)
+    .then((authUser) =>{
+      return updateProfile(authUser.user ,{
+        displayName: username
+      })
+    }).catch((error) => alert(error.message ))
   }
 
   return (
@@ -56,7 +74,7 @@ function App() {
       <NavBar/>
       <Modal
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={handleClose}
       >
         <Box sx={style}>
           <form
@@ -68,7 +86,7 @@ function App() {
             <center>
               <img
                 className='app__headerImage'
-                src="https://www.instargram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
+                src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
                 alt="instagram logo"
               />
             </center>
@@ -90,10 +108,16 @@ function App() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <Button type='submit' onClick={signUp} > Sign Up </Button>
           </form>
         </Box>
       </Modal>
-      <Button type='submit' onClick={signUp} > Sign Up </Button>
+      {user ? (
+        <Button onClick={ () => signOut(auth)} >Log out</Button>
+      ): (
+        <Button onClick={handleOpen} >Sign Up</Button>
+      )}
+      
       {
         posts.map((post) => (
           <Post  username={post.username} caption={post.caption} imageUrl={post.imageUrl}/>
