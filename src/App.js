@@ -65,8 +65,8 @@ function App() {
     e.preventDefault();
     createUserWithEmailAndPassword(auth, email, password)
     .then((authUser) =>{
-      return updateProfile(authUser.user ,{
-        displayName: username
+      return authUser.user.updateProfile({
+        displayName: username,
       })
     }).catch((error) => alert(error.message ))
 
@@ -80,11 +80,28 @@ function App() {
 
     setOpenSignIn(false);
   }
+  // useEffect(() => {
+  //   collection(db, "posts")
+  //     .orderBy("timestamp", "desc")
+  //     .onSnapshot((snapshot)=> {
+  //       setPosts(
+  //         snapshot.docs.map((doc) => ({
+  //           id: doc.id,
+  //           post: doc.data(),
+  //         }))
+  //       )
+  //     })
+  // }, []);
 
   return (
     <div className="app">
       <NavBar/>
-      <ImageUpload username={user.displayName} />
+      {user && user.displayName ? (
+        <ImageUpload username={user.displayName} />
+      ): (
+        <h3>Please Login</h3>
+      )}
+      
       <Modal
         open={open}
         onClose={handleClose}
