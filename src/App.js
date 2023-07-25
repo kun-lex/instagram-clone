@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Input } from '@material-ui/core';
-import { onSnapshot, collection } from 'firebase/firestore'
+import { onSnapshot, collection, orderBy } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signOut, updateProfile, signInWithEmailAndPassword } from 'firebase/auth';
 import ImageUpload from './components/ImageUpload';
 

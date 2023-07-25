@@ -1,8 +1,8 @@
 import { Button } from "@material-ui/core";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { db, storage } from "../firebase";
-import { ref, uploadBytes } from "firebase/storage";
-import { collection, serverTimestamp} from 'firebase/firestore';
+import { ref, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
+import { collection, serverTimestamp, addDoc} from 'firebase/firestore';
 import {v4} from 'uuid';
 import "firebase/firestore";
 import 'firebase/storage';
@@ -11,6 +11,7 @@ const ImageUpload = ({username}) => {
     const [image, setImage] = useState(null)
     const [progress, setProgress] = useState(0)
     const [caption, setCaption] = useState('')
+    const imageRef = ref(storage, "images/")
 
     const handleChange = (e) => {
         if (e.target.files[0]) {
@@ -24,7 +25,8 @@ const ImageUpload = ({username}) => {
         uploadBytes(upLoadTask, image).then(() => {
             alert(" Upload sucessful.....");
         })
-        // upLoadTask.on(
+
+        // upLoadTask.on( 
         //     "state_changed",
         //     (snapshot) => {
         //         const progress = Math.round(
@@ -37,23 +39,27 @@ const ImageUpload = ({username}) => {
         //         alert(error.message);
         //     },
         //     () => {
-        //         storage
-        //             .ref("images")
-        //             .child(image.name)
-        //             .getDownloadUrl()
-        //             .then(url => {
-        //                 collection(db, "posts").add({
-        //                     timestamp: serverTimestamp(),
-        //                     caption: caption,
-        //                     imageUrl: url,
-        //                     username: username,
-        //                 })
-        //             })
+                
         //     }
         // )
         setCaption(' ')
         setImage(null)
     }
+    useEffect(() => {
+        listAll(imageRef).then((response) => {
+            response.items.forEach((item) => {
+                getDownloadURL(item).then((url) => {
+                    
+                    collection(db, "posts")(addDoc, {
+                        timestamp: serverTimestamp(),
+                        caption: caption,
+                        imageUrl: url,
+                        username: username,
+                    })
+                })
+            });
+        })
+    })
 
     return(
         <div>
