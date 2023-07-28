@@ -1,10 +1,6 @@
 import { Button } from "@material-ui/core";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { db, storage } from "../firebase";
-// import { ref, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
-import {ref, getDownloadURL}  from "firebase/storage";
-import { collection, serverTimestamp, addDoc} from 'firebase/firestore';
-import {v4} from 'uuid';
 import firebase from 'firebase/compat/app';
 import "firebase/firestore";
 import 'firebase/storage';

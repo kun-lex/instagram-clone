@@ -7,9 +7,9 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Input } from '@material-ui/core';
-import { onSnapshot, collection, orderBy } from 'firebase/firestore';
-import { createUserWithEmailAndPassword, signOut, updateProfile, signInWithEmailAndPassword } from 'firebase/auth';
+import { signOut, signInWithEmailAndPassword } from 'firebase/auth';
 import ImageUpload from './components/ImageUpload';
+import { collection, onSnapshot, orderBy } from 'firebase/firestore';
 
 function App() {
   const [ posts, setPosts ] = useState([]);
@@ -33,37 +33,27 @@ function App() {
     boxShadow: 24,
     p: 4,
   };
-  useEffect(() =>{
-    const unsubscribe =  auth.onAuthStateChanged((authUser) => {
-      if (authUser) {
-        console.log(authUser);
-        setUser(authUser);
-        if (authUser.displayName) {
-
-        }else {
-          return updateProfile(authUser, {
-            displayName: username,
-          });
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+        if (authUser) {
+            setUser(authUser);
+        } else {
+            setUser(null);
         }
-      } else {
-        setUser(null);
-      }
-    })
-    return ()=> {
-      unsubscribe();
-    }
-  }, [user, username]);
+    });
 
-  // it runs a piece of code based on a specific condition [useEffect]
-  useEffect(()=> 
-    onSnapshot(collection(db, "posts"), (snapshot) =>
-      setPosts(snapshot.docs.map((doc) =>({ ...doc.data(), id: doc.id}) ))
-    )
-  , [])
+    return () => {
+        unsubscribe();
+    };
+}, [user, username]);
+
+
 
   const signUp = (e) => {
     e.preventDefault();
-    createUserWithEmailAndPassword(auth, email, password)
+
+    auth
+    .createUserWithEmailAndPassword( email, password)
     .then((authUser) =>{
       return authUser.user.updateProfile({
         displayName: username,
@@ -80,18 +70,12 @@ function App() {
 
     setOpenSignIn(false);
   }
-  // useEffect(() => {
-  //   collection(db, "posts")
-  //     .orderBy("timestamp", "desc")
-  //     .onSnapshot((snapshot)=> {
-  //       setPosts(
-  //         snapshot.docs.map((doc) => ({
-  //           id: doc.id,
-  //           post: doc.data(),
-  //         }))
-  //       )
-  //     })
-  // }, []);
+    // it runs a piece of code based on a specific condition [useEffect]
+  useEffect(() => 
+    onSnapshot(collection(db, "posts"), (snapshot) =>
+    setPosts (snapshot.docs.map ((doc) => ({ ...doc.data(), id: doc.id, post: doc.data()}) )) 
+    )
+, []);
 
   return (
     <div className="app">
@@ -186,8 +170,8 @@ function App() {
       )}
       
       {
-        posts.map((post) => (
-          <Post  username={post.username} caption={post.caption} imageUrl={post.imageUrl}/>
+        posts.map((id, post) => (
+          <Post key={id} postId={id} user={user} username={post.username} caption={post.caption} imageUrl={post.imageUrl}/>
         ))
       }
     </div>
